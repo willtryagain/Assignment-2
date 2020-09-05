@@ -1,7 +1,7 @@
-#include "prompt.h"
 #include "headers.h"
-
-const int SIZE = 1024;
+#include "macros.h"
+#include "prompt.h"
+#include "process_args.h"
 
 void get_begin(char *begin) {
 	char cwd[SIZE];
@@ -14,11 +14,13 @@ void get_begin(char *begin) {
 }
 
 int main() {
-	char begin[SIZE];
+	char begin[SIZE], str[SIZE];
 	get_begin(begin);
 
 	while (1) {
 		prompt(begin);
-		
+		fgets(str, SIZE, stdin);
+		split_commands(str, begin);
 	}
+	return 0;
 }

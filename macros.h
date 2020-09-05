@@ -1,1 +1,1 @@
-extern const int SIZE;
+#define SIZE 1024

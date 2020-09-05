@@ -1,10 +1,10 @@
 #include "headers.h"
-
-#define SIZE 1024
+#include "modify_path.h"
+#include "macros.h"
 
 int VmSize = -1;
 char State = '\0';
-char path[SIZE], ex_path[SIZE] = "NULL";
+char ex_path[SIZE] = "NULL";
 
 int parse_line(char *line) {
 	//for kb
@@ -34,7 +34,7 @@ void get_vmsize_state(char *path) {
 void get_ex_path(char *path) {
 	readlink(path, ex_path, SIZE);
 	if (errno) 
-      perror("pinfo");
+      perror("executable path");
 }
 
 void pinfo(int count, char *args[]) {
@@ -55,10 +55,19 @@ void pinfo(int count, char *args[]) {
 	strcat(path_e, "/exe");
 	get_vmsize_state(path_v);
 	get_ex_path(path_e);
-	printf("\n");
-	printf("pid -- %d\n", getpid());
+	// printf("\n");
+	if (count == 2) 
+		printf("pid -- %s\n", args[1]);
+	else
+		printf("pid -- %d\n", getpid());
 	printf("Process Status -- %c\n", State);
 	printf("memory -- %d\n", VmSize);
-	modify_path(ex_path);
+	modify_path("/home/name/Documents/operating/", ex_path);
 	printf("Executable Path -- %s\n", ex_path);
+}
+
+int main(int argc, char const *argv[]) {
+	char *args[] = {"pinfo", "1371"};
+	pinfo(2, args);
+	return 0;
 }
