@@ -1,17 +1,5 @@
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <getopt.h>
-#include <grp.h>
-#include <pwd.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <sysexits.h>
-#include <time.h>
-#include <unistd.h>
+#include "headers.h"
+#include "macros.h"
 
 static char* global_dir = ".";
 
@@ -25,12 +13,11 @@ static void init_choices(struct Choices* choices) {
 	choices -> has_l = false; 
 }
 
-struct Choices get_choices(int count, char *args[]) {
+struct Choices get_choices(int count, char args[][SIZE]) {
 	struct Choices choices;
 	init_choices(&choices);
 	int opt;
-
-	while ((opt = getopt(count, args, "amanatman")) != -1) {
+	while ((opt = getopt(count, args, "al")) != -1) {
 		switch (opt) {
 			case 'a': 
 				choices.has_a = true;
@@ -189,17 +176,16 @@ void display_stats(char *dir, char *filename, struct Choices choices) {
 		printf("%s\n", filename);
 		return;
 	}
-	printf("%d--\n", choices.has_l);
 	global_dir = dir;
 
 	struct stat sb = get_stats(filename);
 
 	out_filetype(sb.st_mode);
 	out_permissions(sb.st_mode);
-	printf(" %d ", sb.st_nlink);
+	printf(" %ld ", sb.st_nlink);
 	printf("%10s ", getpwuid(sb.st_uid)->pw_name);
 	printf("%10s", getgrgid(sb.st_gid)->gr_name);
-	printf("%10ld", (long)sb.st_size);
+	printf("%10ld ", (long)sb.st_size);
 
 	out_time(sb.st_mtime);
 	out_name_link(filename, choices, sb.st_mode);
@@ -306,28 +292,27 @@ void display_dir(char *dir, struct Choices choices) {
 	free(dir_arr);
 }	
 
-void scan_dirs(int count, char *args[], struct Choices choices) {
-	printf("z\n");
+void scan_dirs(int count, char* args[], struct Choices choices) {
 	if (optind == count)
 		display_dir(".", choices);
-	printf("x\n");
 	const bool multiple_dirs = (count - optind) >= 2;
-	//loop through the directories
+	// loop through the directories
 	for (int i = optind; i < count; ++i) {
-		// if (!is_dir(args[i])) {
-		// 	display_stats(".", args[i], choices);
-		// 	continue;
-		// } 
+		printf("%s\n", args[i]);
+		if (!is_dir(args[i])) {
+			display_stats(".", args[i], choices);
+			continue;
+		} 
 		//display dir name for multiple dirs
 		if (multiple_dirs)
 			printf("\n%s:\n", args[i]);
-		if (!is_in_dir(".", args[i]))
-			continue;
+		// if (!is_in_dir(".", args[i]))
+		// 	continue;
 		display_dir(args[i], choices);
 	}
 }
 
-int main(int argc, char const *argv[]) {
+void ls(int argc, char* argv[]) {
+	
 	scan_dirs(argc, argv, get_choices(argc, argv));
-	return 0;
 }
