@@ -22,6 +22,8 @@ void split_commands(char *commands, char *begin) {
 	int type = -1;
 	int len, index1=0, index2=0;
 	int count;
+	extern int pid;
+	extern bool bg;
 	//assuming max 100 words in one command
 	char *args1[SIZE]; 
 	char *args2[SIZE];
@@ -36,6 +38,7 @@ void split_commands(char *commands, char *begin) {
 	args1[index1-1][n-1] = 0;
 	// ls/-a ... 
 	for (int i = 0; i < index1; ++i) {
+		index2 = 0;
 		char *word = strtok(args1[i], " ");
 		while (word != NULL) {
 			// printf("%s/", word);
@@ -43,6 +46,14 @@ void split_commands(char *commands, char *begin) {
 			word = strtok(NULL, " ");		
 		}
 		ex(index2, begin, args2);
+		if (pid) {
+			if (bg) {
+
+			} else {
+				printf("c\n");
+				wait(NULL);
+			}
+		}
 	}
 	
 }
